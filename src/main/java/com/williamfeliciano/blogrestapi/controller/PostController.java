@@ -3,6 +3,7 @@ package com.williamfeliciano.blogrestapi.controller;
 import com.williamfeliciano.blogrestapi.dto.PostDto;
 import com.williamfeliciano.blogrestapi.dto.PostResponseDto;
 import com.williamfeliciano.blogrestapi.service.PostService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,12 +35,12 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<PostDto> CreatePost(@RequestBody PostDto postDto){
+    public ResponseEntity<PostDto> CreatePost(@Valid @RequestBody PostDto postDto){
         return new ResponseEntity<>(postService.createPost(postDto), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PostDto> UpdatePost(@RequestBody PostDto postDto, @PathVariable(name="id") long id){
+    public ResponseEntity<PostDto> UpdatePost(@Valid @RequestBody PostDto postDto, @PathVariable(name="id") long id){
         return new ResponseEntity<>(postService.updatePost(postDto,id),HttpStatus.OK);
     }
 
