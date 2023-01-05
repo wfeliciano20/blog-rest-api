@@ -4,6 +4,7 @@ package com.williamfeliciano.blogrestapi.exception;
 import com.williamfeliciano.blogrestapi.dto.ErrorDetailsDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -25,6 +26,14 @@ public class GlobalExceptionHandler {
                 exception.getMessage(), webRequest.getDescription(false));
 
         return new ResponseEntity<>(errorDetails,HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorDetailsDto> handleAccessDeniedException(AccessDeniedException exception, WebRequest webRequest){
+        ErrorDetailsDto errorDetails = new ErrorDetailsDto( new Date(),
+                exception.getMessage(), webRequest.getDescription(false));
+
+        return new ResponseEntity<>(errorDetails,HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(BlogApiException.class)
