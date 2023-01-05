@@ -8,6 +8,8 @@ import com.williamfeliciano.blogrestapi.exception.BlogApiException;
 import com.williamfeliciano.blogrestapi.repository.RoleRepository;
 import com.williamfeliciano.blogrestapi.repository.UserRepository;
 import com.williamfeliciano.blogrestapi.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,6 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -72,4 +75,17 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
         return String.format("%s has registered successfully",registerDto.getUsername());
     }
+
+    @Override
+    public void logout(String authHeader, HttpServletRequest request, HttpServletResponse response) {
+        if(authHeader != null){
+            String tokenValue = authHeader.replace("Bearer ", "");
+        }
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) {
+            new SecurityContextLogoutHandler().logout(request, response, auth);
+        }
+    }
+
 }
