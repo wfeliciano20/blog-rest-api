@@ -7,6 +7,7 @@ import com.williamfeliciano.blogrestapi.entity.Role;
 import com.williamfeliciano.blogrestapi.exception.BlogApiException;
 import com.williamfeliciano.blogrestapi.repository.RoleRepository;
 import com.williamfeliciano.blogrestapi.repository.UserRepository;
+import com.williamfeliciano.blogrestapi.security.JwtTokenProvider;
 import com.williamfeliciano.blogrestapi.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,22 +31,27 @@ public class AuthServiceImpl implements AuthService {
     private UserRepository userRepository;
     private RoleRepository roleRepository;
     private PasswordEncoder passwordEncoder;
+    private JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    public AuthServiceImpl(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+    public AuthServiceImpl(AuthenticationManager authenticationManager,
+                            UserRepository userRepository,
+                            RoleRepository roleRepository,
+                            PasswordEncoder passwordEncoder,
+                            JwtTokenProvider jwtTokenProvider) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
-
 
     @Override
     public String login(LoginDto loginDto) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 loginDto.getUsernameOrEmail(),loginDto.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return String.format("%s has logged in successfully",loginDto.getUsernameOrEmail());
+        return jwtTokenProvider.generateToken(authentication);
 
     }
 
