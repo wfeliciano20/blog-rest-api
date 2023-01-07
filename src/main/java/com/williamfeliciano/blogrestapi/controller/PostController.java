@@ -11,6 +11,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.util.List;
+
 import static com.williamfeliciano.blogrestapi.utils.AppConstants.*;
 
 @RestController
@@ -31,7 +33,7 @@ public class PostController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PostDto> GetPostById(@PathVariable(name = "id") Long id){
+    public ResponseEntity<PostDto> GetPostById(@PathVariable(value = "id") Long id){
         return new ResponseEntity<>(postService.getPostById(id),HttpStatus.OK);
     }
 
@@ -42,16 +44,21 @@ public class PostController {
     }
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<PostDto> UpdatePost(@Valid @RequestBody PostDto postDto, @PathVariable(name="id") long id){
+    public ResponseEntity<PostDto> UpdatePost(@Valid @RequestBody PostDto postDto, @PathVariable(value="id") long id){
         return new ResponseEntity<>(postService.updatePost(postDto,id),HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> DeletePost(@PathVariable(name="id") long id){
+    public ResponseEntity<String> DeletePost(@PathVariable(value="id") long id){
         postService.DeletePost(id);
         String response = "Successfully deleted post with id " + id;
         return new ResponseEntity<>(response,HttpStatus.OK);
+    }
+
+    @GetMapping("/category/{id}")
+    public ResponseEntity<List<PostDto>> getPostByCategory(@PathVariable(value = "id") Long categoryId){
+        return new ResponseEntity<>(postService.getPostsByCategory(categoryId),HttpStatus.OK);
     }
 
 }

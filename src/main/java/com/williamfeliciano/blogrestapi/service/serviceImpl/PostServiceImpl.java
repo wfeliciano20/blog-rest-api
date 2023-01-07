@@ -2,8 +2,10 @@ package com.williamfeliciano.blogrestapi.service.serviceImpl;
 
 import com.williamfeliciano.blogrestapi.dto.PostDto;
 import com.williamfeliciano.blogrestapi.dto.PostResponseDto;
+import com.williamfeliciano.blogrestapi.entity.Category;
 import com.williamfeliciano.blogrestapi.entity.Post;
 import com.williamfeliciano.blogrestapi.exception.ResourceNotFoundException;
+import com.williamfeliciano.blogrestapi.repository.CategoryRepository;
 import com.williamfeliciano.blogrestapi.repository.PostRepository;
 import com.williamfeliciano.blogrestapi.service.PostService;
 import org.modelmapper.ModelMapper;
@@ -19,12 +21,14 @@ import java.util.stream.Collectors;
 @Service
 public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
+    private final CategoryRepository categoryRepository;
 
     private final ModelMapper mapper;
 
     @Autowired
-    public PostServiceImpl(PostRepository postRepository,ModelMapper mapper) {
+    public PostServiceImpl(PostRepository postRepository, CategoryRepository categoryRepository, ModelMapper mapper) {
         this.postRepository = postRepository;
+        this.categoryRepository = categoryRepository;
         this.mapper = mapper;
     }
 
@@ -32,6 +36,10 @@ public class PostServiceImpl implements PostService {
 
         // Create a new post
         Post post = mapToEntity(postDto);
+
+        // Get Category and save category to post
+        Category category = categoryRepository.findById(postDto.getCategoryId()).orElseThrow(()-> new ResourceNotFoundException("Category","Id", postDto.getCategoryId()));
+        post.setCategory(category);
 
         // Save the post to the database
         Post newPost = postRepository.save(post);
@@ -74,6 +82,10 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDto updatePost(PostDto updatedPost, long id) {
         Post post = postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post","id",id));
+        // Get Category and save category to post
+        Category category = categoryRepository.findById(updatedPost.getCategoryId()).orElseThrow(()-> new ResourceNotFoundException("Category","Id", updatedPost.getCategoryId()));
+        post.setCategory(category);
+
         post.setTitle(updatedPost.getTitle());
         post.setDescription(updatedPost.getDescription());
         post.setContent(updatedPost.getContent());
@@ -85,6 +97,14 @@ public class PostServiceImpl implements PostService {
     public void DeletePost(long id) {
         Post post = postRepository.findById(id).orElseThrow(() ->new ResourceNotFoundException("Post","id",id));
         postRepository.delete(post);
+    }
+
+    @Override
+    public List<PostDto> getPostsByCategory(Long categoryId) {
+        // Get Category and save category to post
+        Category category = categoryRepository.findById(categoryId).orElseThrow(()-> new ResourceNotFoundException("Category","Id", categoryId));
+        List<Post> posts = postRepository.findByCategoryId(categoryId);
+        return posts.stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
     private PostDto mapToDTO(Post post){

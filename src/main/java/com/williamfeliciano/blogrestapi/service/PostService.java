@@ -3,6 +3,7 @@ package com.williamfeliciano.blogrestapi.service;
 import com.williamfeliciano.blogrestapi.dto.PostDto;
 import com.williamfeliciano.blogrestapi.dto.PostResponseDto;
 
+import java.util.List;
 
 
 public interface PostService {
@@ -13,4 +14,6 @@ public interface PostService {
     PostDto updatePost(PostDto updatedPost,long id);
 
     void DeletePost(long id);
+
+    List<PostDto> getPostsByCategory(Long categoryId);
 }
